@@ -63,7 +63,7 @@ class _SlidableGestureDetectorState extends State<SlidableGestureDetector> {
       onVerticalDragStart: canDragVertically ? handleDragStart : null,
       onVerticalDragUpdate: canDragVertically ? handleDragUpdate : null,
       onVerticalDragEnd: canDragVertically ? handleDragEnd : null,
-      behavior: HitTestBehavior.opaque,
+      behavior: HitTestBehavior.translucent,
       dragStartBehavior: widget.dragStartBehavior,
       child: widget.child,
     );
