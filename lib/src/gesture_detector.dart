@@ -39,8 +39,7 @@ class SlidableGestureDetector extends StatefulWidget {
   final DragStartBehavior dragStartBehavior;
 
   @override
-  _SlidableGestureDetectorState createState() =>
-      _SlidableGestureDetectorState();
+  _SlidableGestureDetectorState createState() => _SlidableGestureDetectorState();
 }
 
 class _SlidableGestureDetectorState extends State<SlidableGestureDetector> {
@@ -56,15 +55,29 @@ class _SlidableGestureDetectorState extends State<SlidableGestureDetector> {
   Widget build(BuildContext context) {
     final canDragHorizontally = directionIsXAxis && widget.enabled;
     final canDragVertically = !directionIsXAxis && widget.enabled;
-    return GestureDetector(
-      onHorizontalDragStart: canDragHorizontally ? handleDragStart : null,
-      onHorizontalDragUpdate: canDragHorizontally ? handleDragUpdate : null,
-      onHorizontalDragEnd: canDragHorizontally ? handleDragEnd : null,
-      onVerticalDragStart: canDragVertically ? handleDragStart : null,
-      onVerticalDragUpdate: canDragVertically ? handleDragUpdate : null,
-      onVerticalDragEnd: canDragVertically ? handleDragEnd : null,
-      behavior: HitTestBehavior.translucent,
-      dragStartBehavior: widget.dragStartBehavior,
+
+    return RawGestureDetector(
+      gestures: {
+        AllowMultipleHorizontalDrag: GestureRecognizerFactoryWithHandlers<HorizontalDragGestureRecognizer>(
+          () => HorizontalDragGestureRecognizer(),
+          (HorizontalDragGestureRecognizer instance) {
+            instance.onStart = canDragHorizontally ? handleDragStart : null;
+            instance.onUpdate = canDragHorizontally ? handleDragUpdate : null;
+            instance.onEnd = canDragHorizontally ? handleDragEnd : null;
+            instance.dragStartBehavior = widget.dragStartBehavior;
+          },
+        ),
+        VerticalDragGestureRecognizer: GestureRecognizerFactoryWithHandlers<VerticalDragGestureRecognizer>(
+          () => VerticalDragGestureRecognizer(),
+          (VerticalDragGestureRecognizer instance) {
+            instance.onStart = canDragVertically ? handleDragStart : null;
+            instance.onUpdate = canDragVertically ? handleDragUpdate : null;
+            instance.onEnd = canDragVertically ? handleDragEnd : null;
+            instance.dragStartBehavior = widget.dragStartBehavior;
+          },
+        ),
+      },
+      behavior: HitTestBehavior.opaque,
       child: widget.child,
     );
   }
@@ -77,10 +90,7 @@ class _SlidableGestureDetectorState extends State<SlidableGestureDetector> {
   void handleDragStart(DragStartDetails details) {
     startPosition = details.localPosition;
     lastPosition = startPosition;
-    dragExtent = dragExtent.sign *
-        overallDragAxisExtent *
-        widget.controller.ratio *
-        widget.controller.direction.value;
+    dragExtent = dragExtent.sign * overallDragAxisExtent * widget.controller.ratio * widget.controller.direction.value;
   }
 
   void handleDragUpdate(DragUpdateDetails details) {
@@ -93,12 +103,18 @@ class _SlidableGestureDetectorState extends State<SlidableGestureDetector> {
   void handleDragEnd(DragEndDetails details) {
     final delta = lastPosition - startPosition;
     final primaryDelta = directionIsXAxis ? delta.dx : delta.dy;
-    final gestureDirection =
-        primaryDelta >= 0 ? GestureDirection.opening : GestureDirection.closing;
+    final gestureDirection = primaryDelta >= 0 ? GestureDirection.opening : GestureDirection.closing;
 
     widget.controller.dispatchEndGesture(
       details.primaryVelocity,
       gestureDirection,
     );
+  }
+}
+
+class AllowMultipleHorizontalDrag extends HorizontalDragGestureRecognizer {
+  @override
+  void rejectGesture(int pointer) {
+    acceptGesture(pointer);
   }
 }
