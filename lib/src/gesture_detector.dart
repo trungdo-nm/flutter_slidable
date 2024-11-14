@@ -58,9 +58,9 @@ class _SlidableGestureDetectorState extends State<SlidableGestureDetector> {
 
     return RawGestureDetector(
       gestures: {
-        AllowMultipleHorizontalDrag: GestureRecognizerFactoryWithHandlers<HorizontalDragGestureRecognizer>(
-          () => HorizontalDragGestureRecognizer(),
-          (HorizontalDragGestureRecognizer instance) {
+        AllowMultipleHorizontalDrag: GestureRecognizerFactoryWithHandlers<AllowMultipleHorizontalDrag>(
+          () => AllowMultipleHorizontalDrag(),
+          (AllowMultipleHorizontalDrag instance) {
             instance.onStart = canDragHorizontally ? handleDragStart : null;
             instance.onUpdate = canDragHorizontally ? handleDragUpdate : null;
             instance.onEnd = canDragHorizontally ? handleDragEnd : null;
